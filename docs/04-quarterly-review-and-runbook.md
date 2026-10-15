@@ -211,13 +211,6 @@ The evidence for a relationship is the list in [§4.4.2](#442-dispute-resolution
 3. **Decide:** reassign a binding under [§2.3.11](02-solstice-program-governance.md#2311--reassign-a-binding-reassignbinding), or `RemoveOrchestrator`. Record the written reason.
 4. Registry changes bind at once and are recorded in the Change Log (see [§2.3](02-solstice-program-governance.md#23-sra-governance-tier--tasks-and-actions)) and are recorded, with rationale, in the issue.
 
-### 4.4.6 Cross-cutting verification measures
-
-- **Reproducibility:** every verification conclusion must be reproducible from public data via the versioned reference indexer; findings cite the events and blocks used.
-- **Sanctions cadence:** re-screen registered addresses on a fixed cadence and at each admission, not only on trigger. 
-- **Recovery contact:** the declaration names a recovery contact distinct from the identity key ([Policy 6](03-orchestrator-operational-guidelines.md#31-policies)).`ReplaceWallet` still requires the public request in [§2.3.3](02-solstice-program-governance.md#233--replace--rotate-an-orchestrator-address-replacewallet).
-- **Verification trail:** triggers, evidence, decisions, and on-chain actions are all logged in this repository.
-
 ---
 
 ← Previous: [3. Orchestrator Operational Guidelines](03-orchestrator-operational-guidelines.md) · [Back to README](../README.md) · Next: [5. Quarterly Reports](05-quarterly-reports.md) →
