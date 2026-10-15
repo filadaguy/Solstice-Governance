@@ -215,7 +215,6 @@ The evidence for a relationship is the list in [§4.4.2](#442-dispute-resolution
 
 - **Reproducibility:** every verification conclusion must be reproducible from public data via the versioned reference indexer; findings cite the events and blocks used.
 - **Sanctions cadence:** re-screen registered addresses on a fixed cadence and at each admission, not only on trigger. 
-- **Conflict attestations:** collect a conflict-of-interest / no-common-control attestation from the Orchestrator at admission and on any binding change, and the Safe-organization affiliation disclosure in [§2.1.1](02-solstice-program-governance.md#211-standards-for-a-governance-safe-both-tiers). The FIP's separation rule remains address-level. 
 - **Recovery contact:** the declaration names a recovery contact distinct from the identity key ([Policy 6](03-orchestrator-operational-guidelines.md#31-policies)).`ReplaceWallet` still requires the public request in [§2.3.3](02-solstice-program-governance.md#233--replace--rotate-an-orchestrator-address-replacewallet).
 - **Verification trail:** triggers, evidence, decisions, and on-chain actions are all logged in this repository.
 
