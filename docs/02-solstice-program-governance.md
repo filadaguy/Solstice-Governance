@@ -26,16 +26,7 @@ Governance is a bespoke UnanimousGovernance contract, not a nested Safe. Each en
 
 A note on wording: FIP-0118 says "governance multisig"; this repository says "Safe". Both terms refer to the same thing. The FIP identifies each governance multisig by its address and requires no particular wallet product — "no specific multisig implementation (e.g., Safe{Wallet}) is required" (FIP-0118 §4.2). This repository uses Safe because that is what the two tiers deploy, not because the FIP mandates it. Quotations of the FIP keep its wording.
 
-### 2.1.1 Standards for a governance Safe multisig wallet (both tiers)
-
-- Repository disclosure, not a change to that rule: each organization states, in this repository, the entity that holds its Safe. Both Safes of the tier must still approve on chain. This repository does not waive the two-Safe approval, and it does not set a recusal rule that could leave a Safe unable to sign.
-- The organization has a track record in Filecoin governance or engineering, and is independent of the other organization in the same tier.
-- Required by this repository, though not enforced by the protocol: an internal threshold of at least 2, and hardware key custody.
-- No Orchestrator address may participate in either governance tier, as a governance multisig or as a key holder within one (FIP-0118 §4.2). The FIP's rule is address-level.
-- Both Safes of the tier must still approve on chain. This repository does not waive the two-Safe approval, and it does not set a recusal rule that could leave a Safe unable to sign.
-- Internal member rotation is org-internal and immediate; it requires no governance action.
-
-### 2.1.2 Approval and cancellation rules (both tiers)
+### 2.1.1 Approval and cancellation rules (both tiers)
 
 These rules are fixed by the FIP and restated here for operators.
 
@@ -54,7 +45,7 @@ These rules are fixed by the FIP and restated here for operators.
 - **Approval:** both of the tier's Safes. SWA writes additionally require a published and accepted FIP. Registry changes deliberately carry no per-change FIP requirement; the carve-out covers data within the rules, never code. An upgrade of either contract's code requires a FIP.
 - **Cancellation:** SWA discretionary writes are published and held for SWA_TIMELOCK; either Safe alone can cancel during the hold. SRA registry changes bind at once: both Safes approve, the change emits an on-chain event and carries a mandatory published rationale in this repository. The one exception is an SRA code upgrade, which is held before it binds.
 
-### 2.1.3 Summary of changes
+### 2.1.2 Summary of changes
 
 Informative summary; the lifecycle table in the FIP is normative.
 
@@ -249,7 +240,7 @@ For Phase 2 (subject to a future FIP): admission becomes permissionless, enabled
 
 > **Requires:** both SRA Safes · **Hold:** none · **Enforced by:** SRA · **Cancel:** not cancellable (either Safe may `veto(taskId)` only while half-approved) · **No FIP**
 
-1. Application filed as an issue (identity/team, funding plan, declared (payer, operator) pairs and measurement rules). The issue states the chain id.
+1. Application filed as an issue (team, funding plan, declared (payer, operator) pairs and measurement rules). The issue states the chain id.
 2. Resolve the payout wallet to an actor ID. It must exist, and it must not be a payment channel. f02 rejects payment-channel recipients on `SetShares` and `ReplaceAddress` (FIP-0118 §2.4.4). Record the actor code on the issue. A payment-channel wallet can still break `SubmitShares` for every Orchestrator; see §2.3.3.
 3. Both Registry Safes approve `AddOrchestrator(orch, wallet)` using the task-register issue’s canonical calldata; the uniqueness rule reverts any pair already bound elsewhere.
 4. Either Safe may `veto(taskId)` while the task is half-approved. Once both have approved, the admission is not cancellable.
@@ -301,7 +292,7 @@ A later return, where one is allowed, is a fresh `AddOrchestrator` with a fresh 
 2. Publish the recomputation on the task-register issue before either Safe approves: chain id, indexer version or the pinned FIP commit, the settlement and registry events, and the blocks covered. 
 3. During the verification window, both Safes jointly call `CorrectVolume(orch, Q, value)` to replace a misreport or supply a figure for a non-poster. A value neither posted nor supplied binds at zero (conservative under-count). The issue carries the canonical calldata and the expected `taskId` before the first approval. An upward correction, or a figure supplied for an Orchestrator that did not post, uses the same publication and states why the figure is the recomputed value. The FIP allows both directions. 
 4. **One Safe can block a correction.** `CorrectVolume` needs both Registry Safes. The window check runs in the function body after approvals are stored (`ServiceRewardsActor.correctVolume`), so a second approval after the window closes reverts and the first approval stays. Aim for both approvals by day 5 of the 7-day mainnet window (scale the same fraction on calibnet). That aim is not a protocol deadline. 
-5. **If the second approval misses the window,** the posted figure, or zero if nothing was posted, binds (FIP-0118 §2.2). The first approver `veto`s the stale task. The Safes publish a "correction blocked" note on the same issue: the Orchestrator, the recomputed figure, and that it did not bind. If the bound figure passed the gate, reversing the standing w2 step takes a new FIP-backed SWA write paired with the matching `steps` adjustment (FIP-0118, Security Considerations, and §2.2.5). This repository does not pre-authorize that FIP.
+5. **If the second approval misses the window,** the posted figure, or zero if nothing was posted, binds (FIP-0118 §2.2). The first approver `veto`s the stale task. The Safes publish a "correction blocked" note on the same issue: the Orchestrator, the recomputed figure, and that it did not bind. If the bound figure passed the gate, reversing the standing w2 step takes a new FIP-backed SWA write paired with the matching `steps` adjustment (FIP-0118, Security Considerations, and §2.2.5). 
 6. Values bind when the window closes. There is no separate cancellation of a completed correction.
 7. A contested correction is appealed via the [dispute process](04-quarterly-review-and-runbook.md#442-dispute-resolution-for-contested-bindings). The outcome affects only later quarters.
 
@@ -316,10 +307,10 @@ FIP-0118 fixes the binding behavior:
 <details>
 <summary><strong>2.3.5 — Dispute resolution for contested bindings</strong></summary>
 
-1. The contesting party opens an issue identifying the pair and its claim, and the chain id.
-2. SRA Governance requests evidence from both parties (increasing strength: business records; client confirmation via a verifiable channel; a signed payer-wallet attestation naming the orchestrator).
+1. The contesting party opens an issue on this repo identifying the pair and its claim, and the chain id.
+2. SRA Governance requests evidence from both parties (increasing strength: client confirmation via a verifiable channel; a signed payer-wallet attestation naming the orchestrator).
 3. Decide the outcome and record a written reason on the issue. A reassignment executes via [§2.3.11](#2311--reassign-a-binding-reassignbinding). A removal executes via §2.3.2. Neither is a `CorrectVolume` (§2.3.4).
-4. Record the resolution in the issue.
+4. Record the resolution in the issue before closing.
 
 Full procedure and evidence standards: [§4.4.2](04-quarterly-review-and-runbook.md#442-dispute-resolution-for-contested-bindings).
 
@@ -341,7 +332,7 @@ Full procedure and evidence standards: [§4.4.2](04-quarterly-review-and-runbook
 
 > **Requires:** both SRA Safes · **Hold:** none · **Enforced by:** SRA · **Cancel:** not cancellable (either Safe may `veto(taskId)` only while half-approved) · **No FIP**
 
-Standard registry-change flow for the admitted-stablecoin whitelist, the admitted Filecoin Pay contract addresses, and the fee-auction pricing parameters, set by `SetPricingParams`(`min_lot_floor`, `min_lot_alpha`, `price_band`, `registration_cutoff`). All four arguments are supplied on every call, so a change to one restates the other three — the task-register issue must carry the full tuple, not the delta. These are gate-consequential. The calls bind at once when the second Safe approves: each emits an event and stores nothing, and neither is held or cancellable after that approval. Either Safe can `veto(taskId)` on a half-approved task before the second approval. Never a silent edit.
+Standard registry-change flow for the admitted-stablecoin whitelist, the admitted Filecoin Pay contract addresses, and the fee-auction pricing parameters, set by `SetPricingParams`(`min_lot_floor`, `min_lot_alpha`, `price_band`, `registration_cutoff`). All four arguments are supplied on every call, so a change to one restates the other three — the task-register issue must carry the full tuple, not the delta. These are gate-consequential. The calls bind at once when the second Safe approves: each emits an event and stores nothing, and neither is held or cancellable after that approval. Either Safe can `veto(taskId)` on a half-approved task before the second approval.
 
 Both the admitted lists and the pricing parameters, including `REGISTRATION_CUTOFF`, apply from the first epoch of the next quarter, not from the execution epoch (FIP-0118 §2.2 and §3.2). The latest event before a quarter's first epoch is the set in force for that quarter. An Orchestrator does not apply a list or parameter change mid-quarter. For `SetAdmittedLists`, sort each address array ascending before encoding so both Safes share one `taskId` (see task-register canonical calldata). The issue states the chain id.
 
@@ -499,7 +490,7 @@ Mainnet and calibnet values are the deployed values in [`deployments.json`](http
 Two cautions when reading this table:
 
 - **`SRA_UPGRADE_HOLD` and `VERIFICATION_WINDOW` share the value 20,160 on mainnet and are different parameters.** They diverge on calibnet (720 vs 480). Never infer one from the other.
-- **Calibnet is not a scaled copy of mainnet.** A calibnet quarter is 24 hours against mainnet's ~91 days, and the posting and verification windows compress by different factors. A rehearsal planned against the mainnet column will run against the wrong clock. Every task-register issue states the chain id for this reason (§2.4.1).
+- **Calibnet is not a scaled copy of mainnet.** A calibnet quarter is 24 hours against mainnet's ~91 calendar days, and the posting and verification windows compress by different factors. A rehearsal planned against the mainnet column will run against the wrong clock. Every task-register issue states the chain id for this reason (§2.4.1).
 
 > `SWA_TIMELOCK` is FIP-fixed and enforced in L1:
 >
